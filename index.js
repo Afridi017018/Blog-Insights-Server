@@ -47,13 +47,29 @@ dbConnect();
 
 
 
+const verifyToken = (req, res, next) => {
+    const token = req?.cookies?.token;
+    if (!token) {
+        return res.status(401).json({ message: 'unauthorized access' })
+    }
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'unauthorized access' })
+        }
+        req.user = decoded;
+        next();
+    })
+}
 
+
+app.get("/",verifyToken, (req, res) => {
+    res.send("Hello World")
+})
 
 
 app.post("/api/v1/access-token",async (req,res)=>{
      const {user} = req.body;
-    //  console.log('user for token', user);
-     const token = jwt.sign(user, "process.env.ACCESS_TOKEN_SECRET");
+     const token = jwt.sign(user, process.env.JWT_SECRET);
      res.json({token});
 })
 
