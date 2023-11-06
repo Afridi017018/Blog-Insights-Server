@@ -84,6 +84,24 @@ app.post("/api/v1/add-blog",async (req,res)=>{
 
 })
 
+app.put('/api/v1/update-blog', async (req, res) => {
+    const { _id, title, category, image, shortDesc, longDesc } = req.body;
+
+    const query = { _id: new ObjectId(_id) }
+    const update = {
+        $set: {
+            title,
+            category,
+            image,
+            shortDesc,
+            longDesc
+        },
+    };
+
+    const result = await blogCollection.findOneAndUpdate(query, update)
+
+    res.json({ result });
+})
 
 
 
