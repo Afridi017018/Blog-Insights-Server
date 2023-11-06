@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 
 app.use(cors({
     origin: [
-        'http://localhost:5173',
+        'http://127.0.0.1:5173',
     ],
     credentials: true
 }));
@@ -62,29 +62,48 @@ const verifyToken = (req, res, next) => {
 }
 
 
-app.get("/", verifyToken, (req, res) => {
+app.get("/api/v1/h", (req, res) => {
     res.send("Hello World")
 })
+
 
 const blogCollection = client.db("blog-insights").collection("blogs");
 // const cartCollection = client.db("brand-shop").collection("cart");
 
 app.post("/api/v1/access-token", async (req, res) => {
-    const { user } = req.body;
-    const token = jwt.sign(user, process.env.JWT_SECRET);
-    res.json({ token });
+    const { email } = req.body;
+    const token = jwt.sign(email, process.env.JWT_SECRET);
+    // console.log(token)
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+    }).json({success: true });
+
 })
 
-app.post("/api/v1/add-blog", async (req, res) => {
-    const blogInfo = req.body;
 
-    const result = await blogCollection.insertOne({ ...blogInfo, createAt: new Date() });
+app.get("/api/v1/get-blogs", async(req, res) => {
+    
+    const result = await blogCollection.find({}).toArray();
+
+    res.json({result})
+    
+})
+
+
+
+app.post("/api/v1/add-blog", async (req, res) => {
+    const blogData = req.body;
+
+    const result = await blogCollection.insertOne({ ...blogData, createAt: new Date() });
 
     res.json({ result })
 
 })
 
-app.put('/api/v1/update-blog', async (req, res) => {
+
+app.put('/api/v1/update-blog', verifyToken, async (req, res) => {
     const { _id, title, category, image, shortDesc, longDesc } = req.body;
 
     const query = { _id: new ObjectId(_id) }
