@@ -62,25 +62,25 @@ const verifyToken = (req, res, next) => {
 }
 
 
-app.get("/",verifyToken, (req, res) => {
+app.get("/", verifyToken, (req, res) => {
     res.send("Hello World")
 })
 
 const blogCollection = client.db("blog-insights").collection("blogs");
 // const cartCollection = client.db("brand-shop").collection("cart");
 
-app.post("/api/v1/access-token",async (req,res)=>{
-     const {user} = req.body;
-     const token = jwt.sign(user, process.env.JWT_SECRET);
-     res.json({token});
+app.post("/api/v1/access-token", async (req, res) => {
+    const { user } = req.body;
+    const token = jwt.sign(user, process.env.JWT_SECRET);
+    res.json({ token });
 })
 
-app.post("/api/v1/add-blog",async (req,res)=>{
+app.post("/api/v1/add-blog", async (req, res) => {
     const blogInfo = req.body;
-   
-    const result = await blogCollection.insertOne({...blogInfo, createAt: new Date()});
 
-    res.json({result})
+    const result = await blogCollection.insertOne({ ...blogInfo, createAt: new Date() });
+
+    res.json({ result })
 
 })
 
@@ -105,7 +105,15 @@ app.put('/api/v1/update-blog', async (req, res) => {
 
 
 
+app.get("/api/v1/get-single-blog/:blogId", async (req, res) => {
 
+    const { blogId } = req.params;
+    const result = await blogCollection.findOne({ _id: new ObjectId(blogId) });
+
+    res.json({
+        result
+    })
+})
 
 
 
