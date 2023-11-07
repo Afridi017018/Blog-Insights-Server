@@ -92,6 +92,14 @@ app.get("/api/v1/get-blogs", async (req, res) => {
 
 })
 
+app.get("/api/v1/get-recent-blogs", async (req, res) => {
+
+    const result = await blogCollection.find({}).sort({createdAt: -1}).limit(6).toArray();
+
+    res.json({ result })
+
+})
+
 
 
 app.post("/api/v1/add-blog", verifyToken, async (req, res) => {
@@ -183,7 +191,7 @@ app.get("/api/v1/get-wishlist-by-user", async (req, res) => {
 app.delete("/api/v1/delete-wishlist-by-user/:id", async (req, res) => {
     const { id } = req.params;
     const result = await wishlistCollection.deleteOne({_id: new ObjectId(id)});
-console.log(result)
+// console.log(result)
     res.json({ result });
 
 })
