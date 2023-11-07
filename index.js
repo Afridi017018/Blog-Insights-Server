@@ -69,7 +69,7 @@ app.get("/api/v1/h", (req, res) => {
 
 const blogCollection = client.db("blog-insights").collection("blogs");
 const commentCollection = client.db("blog-insights").collection("comments");
-// const cartCollection = client.db("brand-shop").collection("cart");
+const wishlistCollection = client.db("blog-insights").collection("wishlist");
 
 app.post("/api/v1/access-token", async (req, res) => {
     const { email } = req.body;
@@ -152,6 +152,22 @@ app.get("/api/v1/get-comments-by-id/:blogId", async (req, res) => {
     const result = await commentCollection.find({_id: new ObjectId(blogId)}).sort({createdAt: -1}).toArray();
 
     res.json({ result })
+
+})
+
+app.post("/api/v1/add-to-wishlist", async (req, res) => {
+    const wishlist = req.body;
+
+    const find = await wishlistCollection.findOne({user: wishlist.user, blogId: wishlist.blogId})
+
+    if(find !== null)
+    {
+        return res.json({message:"Already in the card" })
+    }
+
+    const result = await wishlistCollection.insertOne({ ...wishlist, createdAt: new Date() });
+
+    res.json({result, message:"Added to the wishlist" })
 
 })
 
