@@ -97,7 +97,7 @@ app.get("/api/v1/get-blogs", async(req, res) => {
 app.post("/api/v1/add-blog", verifyToken, async (req, res) => {
     const blogData = req.body;
 
-    const result = await blogCollection.insertOne({ ...blogData, createAt: new Date() });
+    const result = await blogCollection.insertOne({ ...blogData, createdAt: new Date() });
 
     res.json({ result })
 
@@ -140,7 +140,16 @@ app.get("/api/v1/get-single-blog/:blogId", async (req, res) => {
 app.post("/api/v1/add-comment", async (req, res) => {
     const comment = req.body;
 
-    const result = await commentCollection.insertOne({ ...comment, createAt: new Date() });
+    const result = await commentCollection.insertOne({ ...comment, createdAt: new Date() });
+
+    res.json({ result })
+
+})
+
+app.get("/api/v1/get-comments-by-id/:blogId", async (req, res) => {
+
+    const {blogId} = req.params;
+    const result = await commentCollection.find({_id: new ObjectId(blogId)}).sort({createdAt: -1}).toArray();
 
     res.json({ result })
 
