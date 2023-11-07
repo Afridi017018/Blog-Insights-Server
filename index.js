@@ -79,17 +79,17 @@ app.post("/api/v1/access-token", async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: 'none'
-    }).json({success: true });
+    }).json({ success: true });
 
 })
 
 
-app.get("/api/v1/get-blogs", async(req, res) => {
-    
+app.get("/api/v1/get-blogs", async (req, res) => {
+
     const result = await blogCollection.find({}).toArray();
 
-    res.json({result})
-    
+    res.json({ result })
+
 })
 
 
@@ -148,26 +148,35 @@ app.post("/api/v1/add-comment", async (req, res) => {
 
 app.get("/api/v1/get-comments-by-id/:blogId", async (req, res) => {
 
-    const {blogId} = req.params;
-    const result = await commentCollection.find({_id: new ObjectId(blogId)}).sort({createdAt: -1}).toArray();
+    const { blogId } = req.params;
+    const result = await commentCollection.find({ _id: new ObjectId(blogId) }).sort({ createdAt: -1 }).toArray();
 
     res.json({ result })
 
 })
 
+
 app.post("/api/v1/add-to-wishlist", async (req, res) => {
     const wishlist = req.body;
 
-    const find = await wishlistCollection.findOne({user: wishlist.user, blogId: wishlist.blogId})
+    const find = await wishlistCollection.findOne({ user: wishlist.user, blogId: wishlist.blogId })
 
-    if(find !== null)
-    {
-        return res.json({message:"Already in the card" })
+    if (find !== null) {
+        return res.json({ message: "Already in the card" })
     }
 
     const result = await wishlistCollection.insertOne({ ...wishlist, createdAt: new Date() });
 
-    res.json({result, message:"Added to the wishlist" })
+    res.json({ result, message: "Added to the wishlist" })
+
+})
+
+
+app.get("/api/v1/get-wishlist-by-user", async (req, res) => {
+    const { user } = req.query;
+    const result = await wishlistCollection.find({ user: user }).sort({createdAt: -1}).toArray();
+
+    res.json({ result });
 
 })
 
