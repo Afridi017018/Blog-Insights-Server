@@ -174,8 +174,16 @@ app.post("/api/v1/add-to-wishlist", async (req, res) => {
 
 app.get("/api/v1/get-wishlist-by-user", async (req, res) => {
     const { user } = req.query;
-    const result = await wishlistCollection.find({ user: user }).sort({createdAt: -1}).toArray();
+    const result = await wishlistCollection.find({ user: user }).sort({ createdAt: -1 }).toArray();
 
+    res.json({ result });
+
+})
+
+app.delete("/api/v1/delete-wishlist-by-user/:id", async (req, res) => {
+    const { id } = req.params;
+    const result = await wishlistCollection.deleteOne({_id: new ObjectId(id)});
+console.log(result)
     res.json({ result });
 
 })
