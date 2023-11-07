@@ -68,6 +68,7 @@ app.get("/api/v1/h", (req, res) => {
 
 
 const blogCollection = client.db("blog-insights").collection("blogs");
+const commentCollection = client.db("blog-insights").collection("comments");
 // const cartCollection = client.db("brand-shop").collection("cart");
 
 app.post("/api/v1/access-token", async (req, res) => {
@@ -93,7 +94,7 @@ app.get("/api/v1/get-blogs", async(req, res) => {
 
 
 
-app.post("/api/v1/add-blog", async (req, res) => {
+app.post("/api/v1/add-blog", verifyToken, async (req, res) => {
     const blogData = req.body;
 
     const result = await blogCollection.insertOne({ ...blogData, createAt: new Date() });
@@ -105,7 +106,6 @@ app.post("/api/v1/add-blog", async (req, res) => {
 
 app.put('/api/v1/update-blog', verifyToken, async (req, res) => {
     const { _id, title, category, image, shortDesc, longDesc } = req.body;
-
     const query = { _id: new ObjectId(_id) }
     const update = {
         $set: {
@@ -135,6 +135,16 @@ app.get("/api/v1/get-single-blog/:blogId", async (req, res) => {
 })
 
 
+
+
+app.post("/api/v1/add-comment", async (req, res) => {
+    const comment = req.body;
+
+    const result = await commentCollection.insertOne({ ...comment, createAt: new Date() });
+
+    res.json({ result })
+
+})
 
 
 app.listen(port, () => {
