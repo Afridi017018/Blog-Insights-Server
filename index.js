@@ -102,6 +102,20 @@ app.get("/api/v1/get-recent-blogs", async (req, res) => {
 
 
 
+app.get('/api/v1/get-feature', async(req, res) => {
+    const data = await blogCollection.find({}).sort({createdAt: -1}).toArray();
+
+    data.sort((a, b) => {
+        return b.longDesc.length - a.longDesc.length;
+      });
+      const result = data.slice(0,2);
+      
+      res.json({result})
+      
+  });
+
+
+
 app.post("/api/v1/add-blog", verifyToken, async (req, res) => {
     const blogData = req.body;
 
