@@ -70,6 +70,7 @@ app.get("/api/v1/h", (req, res) => {
 const blogCollection = client.db("blog-insights").collection("blogs");
 const commentCollection = client.db("blog-insights").collection("comments");
 const wishlistCollection = client.db("blog-insights").collection("wishlist");
+const userCollection = client.db("blog-insights").collection("users");
 
 app.post("/api/v1/access-token", async (req, res) => {
     const { email } = req.body;
@@ -81,6 +82,26 @@ app.post("/api/v1/access-token", async (req, res) => {
         sameSite: 'none'
     }).json({ success: true });
 
+})
+
+app.post("/api/v1/user-info", async (req, res) => {
+    const { user, name, photo } = req.body;
+
+    const data = await userCollection.findOne({ user });
+
+    if (data === null) {
+        const result = await userCollection.insertOne({ user, name, photo })
+        return res.json({ result });
+    }
+
+    res.json({ data })
+})
+
+
+app.get("/api/v1/get-user-info/:user", async (req, res) => {
+    const { user} = req.params;
+    const data = await userCollection.findOne({ user });
+    res.json({ data })
 })
 
 
@@ -102,7 +123,7 @@ app.get("/api/v1/get-blogs", async (req, res) => {
 
 
 
-    const result = await blogCollection.find(query).sort({createdAt: -1}).toArray();
+    const result = await blogCollection.find(query).sort({ createdAt: -1 }).toArray();
 
     res.json({ result })
 
@@ -166,9 +187,11 @@ app.get("/api/v1/get-single-blog/:blogId", async (req, res) => {
 
     const { blogId } = req.params;
     const result = await blogCollection.findOne({ _id: new ObjectId(blogId) });
+    const comments = await commentCollection.find({ blogId }).sort({ createdAt: -1 }).toArray();
 
     res.json({
-        result
+        result,
+        comments
     })
 })
 
@@ -184,14 +207,14 @@ app.post("/api/v1/add-comment", async (req, res) => {
 
 })
 
-app.get("/api/v1/get-comments-by-id/:blogId", async (req, res) => {
+// app.get("/api/v1/get-comments-by-id/:blogId", async (req, res) => {
 
-    const { blogId } = req.params;
-    const result = await commentCollection.find({ _id: new ObjectId(blogId) }).sort({ createdAt: -1 }).toArray();
+//     const { blogId } = req.params;
+//     const result = await commentCollection.find({ _id: new ObjectId(blogId) }).sort({ createdAt: -1 }).toArray();
 
-    res.json({ result })
+//     res.json({ result })
 
-})
+// })
 
 
 app.post("/api/v1/add-to-wishlist", async (req, res) => {
