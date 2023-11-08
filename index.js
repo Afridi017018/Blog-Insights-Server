@@ -65,7 +65,7 @@ const verifyToken = (req, res, next) => {
 
 
 app.get("/", (req, res) => {
-    res.send("server is ok !")
+    res.send("server is ok !!!")
 })
 
 
@@ -250,6 +250,18 @@ app.delete("/api/v1/delete-wishlist-by-user/:id", verifyToken, async (req, res) 
     const result = await wishlistCollection.deleteOne({ _id: new ObjectId(id) });
     // console.log(result)
     res.json({ result });
+
+})
+
+
+app.post('/api/v1/logout', async (req, res) => {
+    console.log("User Logged out: " ,req.body.user);
+    res.clearCookie('token',  {
+        maxAge:0,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+    }).json({ success: true });
 
 })
 
