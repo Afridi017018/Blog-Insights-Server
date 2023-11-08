@@ -13,7 +13,8 @@ const port = process.env.PORT || 5000;
 app.use(cors({
     origin: [
         'http://127.0.0.1:5173',
-        'https://blog-insights.web.app'
+        'https://blog-insights.web.app',
+        'https://blog-insights.firebaseapp.com'
     ],
     credentials: true
 }));
@@ -64,7 +65,7 @@ const verifyToken = (req, res, next) => {
 
 
 app.get("/", (req, res) => {
-    res.send("Everything ok!")
+    res.send("server is ok !")
 })
 
 
@@ -102,6 +103,7 @@ app.post("/api/v1/user-info", async (req, res) => {
 app.get("/api/v1/get-user-info/:user", async (req, res) => {
     const { user } = req.params;
     const data = await userCollection.findOne({ user });
+    // console.log(user)
     res.json({ data })
 })
 
@@ -146,7 +148,7 @@ app.get('/api/v1/get-feature', async (req, res) => {
     data.sort((a, b) => {
         return b.longDesc.length - a.longDesc.length;
     });
-    const result = data.slice(0, 2);
+    const result = data.slice(0, 10);
 
     res.json({ result })
 
