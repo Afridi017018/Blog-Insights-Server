@@ -13,6 +13,7 @@ const port = process.env.PORT || 5000;
 app.use(cors({
     origin: [
         'http://127.0.0.1:5173',
+        'https://blog-insights.web.app'
     ],
     credentials: true
 }));
@@ -62,8 +63,8 @@ const verifyToken = (req, res, next) => {
 }
 
 
-app.get("/api/v1/h", (req, res) => {
-    res.send("Hello World")
+app.get("/", (req, res) => {
+    res.send("Everything ok!")
 })
 
 
@@ -99,14 +100,14 @@ app.post("/api/v1/user-info", async (req, res) => {
 
 
 app.get("/api/v1/get-user-info/:user", async (req, res) => {
-    const { user} = req.params;
+    const { user } = req.params;
     const data = await userCollection.findOne({ user });
     res.json({ data })
 })
 
 
 app.get("/api/v1/get-blogs", async (req, res) => {
-
+    // console.log("Request path:", req.path);
     const { search, category } = req.query;
     const query = {}
     if (search) {
@@ -184,7 +185,8 @@ app.put('/api/v1/update-blog', verifyToken, async (req, res) => {
 
 
 app.get("/api/v1/get-single-blog/:blogId", async (req, res) => {
-
+    // console.log("Request path:", req.path);
+    // console.log(req.params);
     const { blogId } = req.params;
     const result = await blogCollection.findOne({ _id: new ObjectId(blogId) });
     const comments = await commentCollection.find({ blogId }).sort({ createdAt: -1 }).toArray();
@@ -198,7 +200,7 @@ app.get("/api/v1/get-single-blog/:blogId", async (req, res) => {
 
 
 
-app.post("/api/v1/add-comment", async (req, res) => {
+app.post("/api/v1/add-comment", verifyToken, async (req, res) => {
     const comment = req.body;
 
     const result = await commentCollection.insertOne({ ...comment, createdAt: new Date() });
@@ -217,7 +219,7 @@ app.post("/api/v1/add-comment", async (req, res) => {
 // })
 
 
-app.post("/api/v1/add-to-wishlist", async (req, res) => {
+app.post("/api/v1/add-to-wishlist", verifyToken, async (req, res) => {
     const wishlist = req.body;
 
     const find = await wishlistCollection.findOne({ user: wishlist.user, blogId: wishlist.blogId })
@@ -233,7 +235,7 @@ app.post("/api/v1/add-to-wishlist", async (req, res) => {
 })
 
 
-app.get("/api/v1/get-wishlist-by-user", async (req, res) => {
+app.get("/api/v1/get-wishlist-by-user", verifyToken, async (req, res) => {
     const { user } = req.query;
     const result = await wishlistCollection.find({ user: user }).sort({ createdAt: -1 }).toArray();
 
@@ -241,7 +243,7 @@ app.get("/api/v1/get-wishlist-by-user", async (req, res) => {
 
 })
 
-app.delete("/api/v1/delete-wishlist-by-user/:id", async (req, res) => {
+app.delete("/api/v1/delete-wishlist-by-user/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
     const result = await wishlistCollection.deleteOne({ _id: new ObjectId(id) });
     // console.log(result)
