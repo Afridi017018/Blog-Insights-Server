@@ -103,7 +103,6 @@ app.post("/api/v1/user-info", async (req, res) => {
 app.get("/api/v1/get-user-info/:user", async (req, res) => {
     const { user } = req.params;
     const data = await userCollection.findOne({ user });
-    // console.log(user)
     res.json({ data })
 })
 
@@ -144,12 +143,16 @@ app.get("/api/v1/get-recent-blogs", async (req, res) => {
 
 app.get('/api/v1/get-feature', async (req, res) => {
     const data = await blogCollection.find({}).sort({ createdAt: -1 }).toArray();
+    const userInfo = await userCollection.find({}).toArray()
 
     data.sort((a, b) => {
         return b.longDesc.length - a.longDesc.length;
     });
-    const result = data.slice(0, 10);
 
+    const result = data.slice(0, 10).map(item => {
+        const user = userInfo.find(u => u.user === item.user);
+        return { ...item, userPhoto: user.photo, userName: user.name  };
+    });
     res.json({ result })
 
 });
@@ -255,9 +258,9 @@ app.delete("/api/v1/delete-wishlist-by-user/:id", verifyToken, async (req, res) 
 
 
 app.post('/api/v1/logout', async (req, res) => {
-    console.log("User Logged out: " ,req.body.user);
-    res.clearCookie('token',  {
-        maxAge:0,
+    console.log("User Logged out: ", req.body.user);
+    res.clearCookie('token', {
+        maxAge: 0,
         httpOnly: true,
         secure: true,
         sameSite: 'none',
